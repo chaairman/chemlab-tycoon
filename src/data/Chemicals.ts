@@ -11,33 +11,36 @@ export interface ChemicalData {
     /** The price obtained when selling one unit of this chemical (0 if not sellable). */
     sellPrice: number;
     /** Optional: Path to an icon asset for this chemical (we'll add actual paths later). */
-    icon?: string; // e.g., 'assets/icons/raw_a.png'
+    icon?: string;
 }
 
 /**
  * A map holding the data for all available chemicals in the game, keyed by their ID.
- * This makes it easy to look up chemical data using its name (e.g., CHEMICAL_DATA['Raw Chemical A']).
  */
 export const CHEMICAL_DATA: Record<string, ChemicalData> = {
     // --- Raw Chemicals ---
     'Raw Chemical A': {
-        id: 'Raw Chemical A', // Use the key as the ID for simplicity
-        buyCost: 10,         // Cost $10 to buy one unit
-        sellPrice: 0,          // Cannot be sold directly
-        // icon: 'assets/icons/raw_a.png' // Add actual asset path later
+        id: 'Raw Chemical A',
+        buyCost: 10,
+        sellPrice: 0,
+        // icon: 'assets/icons/raw_a.png'
     },
 
-    // --- Products ---
+    // --- Intermediate/Final Products ---
     'Product B': {
         id: 'Product B',
-        buyCost: 0,            // Cannot be bought directly
-        sellPrice: 25,         // Sells for $25 per unit
-        // icon: 'assets/icons/product_b.png' // Add actual asset path later
-    }
+        buyCost: 0,
+        sellPrice: 25, // Sell price for the output of the Mixer
+        // icon: 'assets/icons/product_b.png'
+    },
 
-    // --- Future Chemicals can be added here ---
-    // 'Acid X': { id: 'Acid X', buyCost: 5, sellPrice: 0 },
-    // 'Compound Y': { id: 'Compound Y', buyCost: 0, sellPrice: 50 },
+    // --- NEW CHEMICAL (Tier 2 Product) ---
+    'Product C': {
+        id: 'Product C',
+        buyCost: 0,           // Cannot be bought directly
+        sellPrice: 60,          // Sells for more, as it requires more processing
+        // icon: 'assets/icons/product_c.png'
+    }
 };
 
 /**

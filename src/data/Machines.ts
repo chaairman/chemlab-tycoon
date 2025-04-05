@@ -9,11 +9,7 @@ export interface MachineTypeData {
     /** The cost to purchase one machine of this type. */
     cost: number;
     /** The path to the sprite/texture asset for this machine type. */
-    spritePath: string; // e.g., 'assets/machines/mixer.png'
-    // --- Optional future properties ---
-    // footprintWidth?: number; // How many grid cells wide
-    // footprintHeight?: number; // How many grid cells tall
-    // powerConsumption?: number; // Power needed per second
+    spritePath: string;
 }
 
 /**
@@ -22,16 +18,16 @@ export interface MachineTypeData {
 export const MACHINE_TYPE_DATA: Record<string, MachineTypeData> = {
     'Mixer': {
         id: 'Mixer',
-        cost: 100,                          // Costs $100 to buy
-        spritePath: 'assets/sprites/mixer_placeholder.png', // Placeholder path - needs actual asset later!
+        cost: 100,
+        spritePath: 'assets/sprites/mixer_placeholder.png', // We will replace this path later
     },
 
-    // --- Future Machine Types can be added here ---
-    // 'Heater': {
-    //     id: 'Heater',
-    //     cost: 300,
-    //     spritePath: 'assets/sprites/heater_placeholder.png',
-    // },
+    // --- NEW MACHINE TYPE ---
+    'Heater': {
+        id: 'Heater',
+        cost: 300,                                        // More expensive than Mixer
+        spritePath: 'assets/sprites/heater_placeholder.png', // Placeholder path for now
+    },
 };
 
 /**

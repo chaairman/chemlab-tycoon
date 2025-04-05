@@ -1,0 +1,1251 @@
+├── .gitignore
+├── README.md
+├── changelog.md
+├── index.html
+├── package.json
+├── public/
+│   ├── assets/
+│   │   ├── icons/
+│   │   └── sprites/
+│   └── vite.svg
+├── src/
+│   ├── GameManager.ts
+│   ├── Inventory.ts
+│   ├── MachineInstance.ts
+│   ├── UIManager.ts
+│   ├── counter.ts
+│   ├── data/
+│   │   ├── Chemicals.ts
+│   │   ├── Machines.ts
+│   │   └── Recipes.ts
+│   ├── main.ts
+│   ├── style.css
+│   ├── typescript.svg
+│   └── vite-env.d.ts
+└── tsconfig.json
+
+# File: index.html
+```html
+<!-- index.html -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChemLab Tycoon</title>
+    <!-- The stylesheet link is automatically handled by Vite's import in main.ts -->
+  </head>
+  <body>
+    <!-- This is where the Pixi.js canvas will be injected -->
+    <div id="app"></div>
+    <!-- Our TypeScript code entry point -->
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+```
+# End of file: index.html
+
+# File: changelog.md
+```markdown
+# Changelog: ChemLab Tycoon (Pixi.js Prototype)
+
+**Date:** October 26, 2023
+
+This document summarizes the development progress for the ChemLab Tycoon Pixi.js prototype based on completed implementation steps.
+
+---
+
+## [Unreleased] - Initial Development Phase
+
+### Features Added
+
+*   **Project Setup (Step 1):**
+    *   Initialized project using Vite with the `vanilla-ts` template.
+    *   Installed Node dependencies (`npm install`).
+    *   Added `pixi.js` library (`npm install pixi.js`).
+    *   Configured basic Git repository and `.gitignore`.
+*   **Pixi.js Initialization (Step 2):**
+    *   Created core `GameManager.ts` class.
+    *   Implemented Pixi.js `PIXI.Application` initialization within `GameManager`.
+    *   Set up the Pixi canvas to render fullscreen in `index.html` via `#app` div.
+    *   Applied basic CSS for fullscreen layout (`style.css`).
+    *   Set background color and implemented window resize handling.
+    *   Started the Pixi ticker (`app.ticker`) calling a basic `update` loop in `GameManager`.
+    *   Modified `main.ts` to instantiate `GameManager`.
+*   **Core Data Definition (Step 3):**
+    *   Created `src/data` directory.
+    *   Defined data structures (`interfaces`) for `ChemicalData`, `RecipeData`, `MachineTypeData`.
+    *   Implemented constant data objects (`CHEMICAL_DATA`, `RECIPE_DATA`, `MACHINE_TYPE_DATA`) for MVP items (Raw A, Product B, Mixer, A->B Recipe).
+    *   Added helper functions (`getChemicalData`, etc.) for data access.
+    *   Created placeholder asset directory structure (`public/assets/`).
+*   **Inventory System (Step 4):**
+    *   Created `src/Inventory.ts` with the `Inventory` class.
+    *   Implemented storage logic using `Map<string, number>`.
+    *   Implemented capacity checking (`maxCapacity`, `getCurrentLoad`, `isFull`).
+    *   Added methods (`addChemical`, `removeChemical`, `hasEnough`, `getAmount`, etc.).
+    *   Integrated `Inventory` instance into `GameManager`.
+*   **Basic UI Display (Step 5):**
+    *   Created `src/UIManager.ts` class.
+    *   Implemented display of Currency and Inventory count/capacity using `PIXI.Text`.
+    *   Defined basic text styles (`PIXI.TextStyle`).
+    *   Positioned UI elements on the stage.
+    *   Integrated `UIManager` into `GameManager`, passing the stage reference.
+    *   Added `currency` state to `GameManager`.
+    *   Implemented `updateUIDisplays` method in `GameManager` called in the game loop.
+*   **Buy/Sell Buttons & Logic (Step 6):**
+    *   Added `createButton` method in `UIManager` using `PIXI.Graphics` and `PIXI.Text`.
+    *   Passed click handler callbacks (`handleBuyChemicalA`, `handleSellProductB`) from `GameManager` to `UIManager` constructor.
+    *   Implemented `handleBuyChemicalA` and `handleSellProductB` in `GameManager` to modify currency and inventory based on `ChemicalData`.
+    *   Created "Buy Raw A" and "Sell Product B" buttons in the UI.
+*   **Machine Instance & Processing (Step 7 Refactored):**
+    *   Created `src/MachineInstance.ts` (renamed from `Machine.ts`) with the `MachineInstance` class.
+    *   Implemented machine states (`Idle`, `Processing`, `Blocked_Output`, etc.).
+    *   Added recipe timer logic (`processingTimerSeconds`) updated via `deltaMS`.
+    *   Implemented interaction with `Inventory` to check/consume inputs (`removeChemical`) and add outputs (`addChemical`).
+    *   Created basic visual placeholder using `PIXI.Graphics` and `PIXI.Text` for status display.
+    *   Added `updateVisualState` to change color/text based on status.
+    *   Integrated `MachineInstance` management into `GameManager` (added `machines` array, updated game loop to call `machine.update()`).
+*   **Machine Buying & Placement (Step 8):**
+    *   Added "Buy Mixer" button to `UIManager`.
+    *   Added placement state logic (`isPlacingMachine`, `placementMachineType`) to `GameManager`.
+    *   Implemented `handleBuyMixer` in `GameManager` to check cost and enter placement mode.
+    *   Added stage click (`pointerdown`) listener in `GameManager`'s `initApp`.
+    *   Implemented `handleStageClick` to call `placeMachine` when `isPlacingMachine` is true.
+    *   Implemented `placeMachine` method to deduct cost, create `MachineInstance`, add to list, and add sprite to stage.
+    *   Added placement cancellation via Right-click (`rightclick`), Escape key (`keydown`), or clicking the buy button again.
+    *   Added visual placement preview (`PIXI.Graphics`) that follows mouse (`pointermove`).
+    *   Added placement feedback text via `UIManager.updatePlacementText`.
+    *   **Fixed:** Used `event.stopPropagation()` on button clicks in `UIManager` to prevent events bubbling to the stage and causing immediate placement.
+
+### Refactoring
+
+*   **Clarity Rename (Step 7):** Renamed `src/Machine.ts` and class `Machine` to `src/MachineInstance.ts` and `MachineInstance` respectively to avoid confusion with `src/data/Machines.ts`. Updated all relevant imports and references.
+
+---
+```
+# End of file: changelog.md
+
+# File: README.md
+```markdown
+
+```
+# End of file: README.md
+
+# File: .gitignore
+```text
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+```
+# End of file: .gitignore
+
+# File: package.json
+```json
+{
+  "name": "chemlab-tycoon",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0"
+  },
+  "dependencies": {
+    "pixi.js": "^8.9.1"
+  }
+}
+
+```
+# End of file: package.json
+
+# File: tsconfig.json
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"]
+}
+
+```
+# End of file: tsconfig.json
+
+# File: public/vite.svg
+```text
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+```
+# End of file: public/vite.svg
+
+# File: src/GameManager.ts
+```typescript
+// src/GameManager.ts
+
+import * as PIXI from 'pixi.js';
+import { Inventory } from './Inventory';
+import { UIManager } from './UIManager';
+import { MachineInstance } from './MachineInstance';
+import { getChemicalData } from './data/Chemicals';
+import { getMachineTypeData } from './data/Machines'; // Need this!
+
+/**
+ * Manages the overall game state, Pixi.js application, and game loop.
+ */
+export class GameManager {
+    private app: PIXI.Application;
+    private inventory: Inventory;
+    private currency: number;
+    private uiManager: UIManager;
+    private machines: MachineInstance[];
+    private machineIdCounter: number;
+
+    // --- Placement State ---
+    private isPlacingMachine: boolean = false;
+    private placementMachineType: string | null = null;
+    // Simple placement preview (optional enhancement)
+    private placementPreviewSprite: PIXI.Graphics | null = null;
+
+    constructor() {
+        console.log("GameManager initializing...");
+        // ... (other initializations as before) ...
+        const startingCapacity = 50;
+        this.inventory = new Inventory(startingCapacity);
+        this.currency = 500;
+        this.machines = [];
+        this.machineIdCounter = 0;
+        this.app = new PIXI.Application();
+        this.initApp();
+        console.log("GameManager initialization almost complete (waiting for Pixi App init).");
+    }
+
+    private async initApp() {
+        await this.app.init({ /* ... as before ... */
+             width: window.innerWidth, height: window.innerHeight, backgroundColor: 0x808080,
+             autoDensity: true, resolution: window.devicePixelRatio || 1,
+        });
+        console.log("Pixi Application initialized.");
+
+        const appContainer = document.getElementById('app');
+        if (appContainer) { appContainer.appendChild(this.app.canvas); }
+        else { console.error("Could not find #app element!"); return; }
+
+        // --- UIManager Setup ---
+        // Pass the new handler for the Buy Mixer button
+        this.uiManager = new UIManager(
+            this.app.stage,
+            this.handleBuyChemicalA.bind(this),
+            this.handleSellProductB.bind(this),
+            this.handleBuyMixer.bind(this) // Added callback
+        );
+        this.updateUIDisplays(); // Initial UI update
+
+        // --- Global Event Listeners ---
+        window.addEventListener('resize', this.handleResize.bind(this));
+        // Add listener for Escape key to cancel placement
+        window.addEventListener('keydown', this.handleKeyDown.bind(this));
+
+        // --- Stage Interaction Setup (for placement) ---
+        // Stage interaction is enabled/disabled dynamically
+        this.app.stage.eventMode = 'static'; // Enable basic events on the stage
+        this.app.stage.hitArea = this.app.screen; // Make the whole stage clickable
+        // Listener for placing machine
+        this.app.stage.on('pointerdown', this.handleStageClick.bind(this));
+        // Listener for canceling placement with right-click
+        this.app.stage.on('rightclick', this.handleCancelPlacement.bind(this));
+        // Listener for updating placement preview position
+        this.app.stage.on('pointermove', this.handlePointerMove.bind(this));
+
+
+        // --- Start Game Loop ---
+        // Remove the temporary createTestMachine() call from here
+        this.app.ticker.add(this.update.bind(this));
+        console.log("Pixi ticker started. GameManager fully initialized.");
+    }
+
+    private handleResize() { /* ... as before ... */
+        this.app.renderer.resize(window.innerWidth, window.innerHeight);
+        this.app.stage.hitArea = this.app.screen; // Update hit area on resize
+        console.log(`Resized canvas to ${window.innerWidth}x${window.innerHeight}`);
+    }
+
+    /** Main game loop */
+    private update(ticker: PIXI.Ticker): void {
+        const deltaMS = ticker.deltaMS;
+        // Update machines
+        this.machines.forEach(machine => machine.update(deltaMS));
+        // Update UI
+        this.updateUIDisplays();
+    }
+
+    /** Updates UI Texts */
+    private updateUIDisplays(): void {
+        if (this.uiManager) {
+            this.uiManager.updateCurrency(this.currency);
+            this.uiManager.updateInventory(this.inventory);
+            // Update placement text based on state
+            if (this.isPlacingMachine && this.placementMachineType) {
+                this.uiManager.updatePlacementText(`Placing ${this.placementMachineType}. Click to confirm, Right-click/ESC to cancel.`);
+            } else {
+                this.uiManager.updatePlacementText(''); // Clear text if not placing
+            }
+        }
+    }
+
+    // --- Action Handlers ---
+    private handleBuyChemicalA(): void { /* ... as before ... */
+        const chemicalId = 'Raw Chemical A'; const amount = 1;
+        try {
+            const data = getChemicalData(chemicalId);
+            if (this.currency < data.buyCost * amount) { console.warn(`Need $${data.buyCost * amount}, have $${this.currency}`); return; }
+            if (this.inventory.addChemical(chemicalId, amount)) {
+                this.currency -= data.buyCost * amount; console.log(`Bought ${amount} ${chemicalId}. Currency: $${this.currency}`);
+            }
+        } catch (e) { console.error(`Error buying ${chemicalId}:`, e); }
+    }
+    private handleSellProductB(): void { /* ... as before ... */
+        const chemicalId = 'Product B'; const amount = 1;
+        try {
+            const data = getChemicalData(chemicalId);
+            if (!this.inventory.hasEnough(chemicalId, amount)) { console.warn(`Not enough ${chemicalId} to sell.`); return; }
+            if (this.inventory.removeChemical(chemicalId, amount)) {
+                this.currency += data.sellPrice * amount; console.log(`Sold ${amount} ${chemicalId}. Currency: $${this.currency}`);
+            }
+        } catch (e) { console.error(`Error selling ${chemicalId}:`, e); }
+    }
+
+    /** Initiates placement mode for a Mixer. */
+    private handleBuyMixer(): void {
+        const machineType = 'Mixer';
+        if (this.isPlacingMachine) {
+             // If already placing, treat clicking the button again as cancel
+            this.handleCancelPlacement();
+            return;
+        }
+
+        try {
+            const machineData = getMachineTypeData(machineType);
+            if (this.currency >= machineData.cost) {
+                this.isPlacingMachine = true;
+                this.placementMachineType = machineType;
+                console.log(`Started placement mode for ${machineType}. Cost: $${machineData.cost}`);
+                // Create and show placement preview
+                this.createPlacementPreview(machineType);
+                // Update UI text via the main loop's updateUIDisplays()
+            } else {
+                console.warn(`Cannot buy ${machineType}. Need $${machineData.cost}, have $${this.currency}`);
+                // Optionally show feedback message via UIManager
+                if(this.uiManager) this.uiManager.updatePlacementText(`Not enough money for ${machineType}! ($${machineData.cost})`);
+                // Clear message after a delay?
+                setTimeout(() => { if(this.uiManager) this.uiManager.updatePlacementText(''); }, 2000);
+            }
+        } catch (error) {
+            console.error(`Error initiating buy for ${machineType}:`, error);
+        }
+    }
+
+    /** Handles clicks on the main stage (used for placing machines). */
+    private handleStageClick(event: PIXI.FederatedPointerEvent): void {
+        // Only act if we are in placement mode
+        if (this.isPlacingMachine && this.placementMachineType) {
+            const position = event.global.clone(); // Get click position in global coords
+            console.log(`Attempting to place ${this.placementMachineType} at (${position.x.toFixed(0)}, ${position.y.toFixed(0)})`);
+            this.placeMachine(this.placementMachineType, position);
+
+            // Exit placement mode regardless of success (placeMachine handles cost/failure)
+            this.isPlacingMachine = false;
+            this.placementMachineType = null;
+            this.destroyPlacementPreview(); // Remove preview
+            // UI text update happens in the next frame via updateUIDisplays()
+        }
+        // Otherwise, ignore stage clicks
+    }
+
+     /** Handles right-click or Escape key press to cancel placement mode. */
+     private handleCancelPlacement(): void {
+        if (this.isPlacingMachine) {
+            console.log("Placement cancelled.");
+            this.isPlacingMachine = false;
+            this.placementMachineType = null;
+            this.destroyPlacementPreview(); // Remove preview
+            // UI text update happens in the next frame
+        }
+    }
+
+     /** Handles Escape key presses */
+     private handleKeyDown(event: KeyboardEvent): void {
+        if (event.key === 'Escape') {
+            this.handleCancelPlacement();
+        }
+    }
+
+    /** Updates the position of the placement preview sprite */
+    private handlePointerMove(event: PIXI.FederatedPointerEvent): void {
+        if (this.isPlacingMachine && this.placementPreviewSprite) {
+             // Convert global mouse coords to stage local coords if needed,
+             // but for simple top-level stage, global might be fine.
+             // Let's assume global is okay for now.
+             const position = event.global;
+             this.placementPreviewSprite.position.copyFrom(position);
+             // Adjust position slightly so cursor isn't directly over the center? (optional)
+             // this.placementPreviewSprite.position.set(position.x - 32, position.y - 32); // Offset example
+        }
+    }
+
+
+    // --- Machine Management ---
+
+    /** Creates the visual preview for machine placement */
+    private createPlacementPreview(machineType: string): void {
+        this.destroyPlacementPreview(); // Remove any existing preview
+
+        // Simple rectangle placeholder for preview
+        this.placementPreviewSprite = new PIXI.Graphics()
+            .rect(0, 0, 64, 64) // Use same size as MachineInstance graphic for now
+            .fill({ color: 0x00FF00, alpha: 0.5 }); // Green, semi-transparent
+
+         // Set initial position (will be updated by pointermove)
+         if (this.app.renderer.events.rootPointerEvent) {
+             this.placementPreviewSprite.position.copyFrom(this.app.renderer.events.rootPointerEvent.global);
+         } else {
+             // Fallback position if no initial pointer data available
+             this.placementPreviewSprite.position.set(this.app.screen.width/2, this.app.screen.height/2);
+         }
+
+        this.app.stage.addChild(this.placementPreviewSprite);
+    }
+
+     /** Removes the placement preview sprite from the stage */
+    private destroyPlacementPreview(): void {
+        if (this.placementPreviewSprite) {
+            this.app.stage.removeChild(this.placementPreviewSprite);
+            this.placementPreviewSprite.destroy(); // Free up memory
+            this.placementPreviewSprite = null;
+        }
+    }
+
+
+    /** Creates a MachineInstance, deducts cost, adds it to the list and stage. */
+    private placeMachine(machineType: string, position: { x: number, y: number }): void {
+        try {
+            const machineData = getMachineTypeData(machineType);
+
+            // Double-check cost before placing
+            if (this.currency < machineData.cost) {
+                console.warn(`Placement failed: Not enough currency for ${machineType}. Need $${machineData.cost}, have $${this.currency}`);
+                // Show feedback via UI manager?
+                return;
+            }
+
+            // Deduct cost *before* creating, standard practice
+            this.currency -= machineData.cost;
+            console.log(`Spent $${machineData.cost} on ${machineType}. Current currency: $${this.currency}`);
+
+            // Create the actual machine instance
+            const newMachineId = `machine_${this.machineIdCounter++}`;
+            // Adjust position slightly? Maybe place based on top-left corner, matching preview?
+            // For now, place center where clicked.
+            const adjustedPosition = { x: position.x - 32, y: position.y - 32 }; // Center the 64x64 graphic on cursor
+
+            const newMachine = new MachineInstance(newMachineId, machineType, this.inventory, adjustedPosition);
+
+            this.machines.push(newMachine); // Add to managed list
+            this.app.stage.addChild(newMachine.getSprite()); // Add visuals to stage
+
+            console.log(`Successfully placed ${newMachineId} (${machineType}) at (${adjustedPosition.x.toFixed(0)}, ${adjustedPosition.y.toFixed(0)}).`);
+
+            // Explicitly update UI here for immediate cost feedback if desired
+            // this.updateUIDisplays();
+
+        } catch (error) {
+            console.error(`Failed to place machine of type ${machineType}:`, error);
+            // CRITICAL: Consider refunding currency if creation fails AFTER cost deduction?
+            // For MVP, maybe just log the error.
+        }
+    }
+}
+```
+# End of file: src/GameManager.ts
+
+# File: src/Inventory.ts
+```typescript
+// src/Inventory.ts
+
+// It's good practice to import data types if needed, though not strictly required for keys here
+// import { CHEMICAL_DATA } from './data/Chemicals'; // We don't need the full data here, just the IDs (strings)
+
+/**
+ * Manages the storage of chemicals, tracking counts and enforcing capacity limits.
+ */
+export class Inventory {
+    // Private property to store the chemical counts.
+    // Uses a Map for efficient lookups, additions, and deletions.
+    // Key: Chemical ID (string, e.g., 'Raw Chemical A')
+    // Value: Amount stored (number)
+    private storage: Map<string, number>;
+
+    // Private property for the maximum total units that can be stored across all chemicals.
+    private _maxCapacity: number;
+
+    /**
+     * Creates a new Inventory instance.
+     * @param maxCapacity - The maximum total number of chemical units this inventory can hold.
+     */
+    constructor(maxCapacity: number) {
+        // Ensure maxCapacity is a non-negative number
+        if (maxCapacity < 0) {
+            console.warn(`Inventory maxCapacity cannot be negative. Setting to 0.`);
+            this._maxCapacity = 0;
+        } else {
+            this._maxCapacity = maxCapacity;
+        }
+        // Initialize the storage map as empty.
+        this.storage = new Map<string, number>();
+        console.log(`Inventory created with max capacity: ${this._maxCapacity}`);
+    }
+
+    /**
+     * Calculates the current total number of units stored across all chemicals.
+     * @returns The total number of units currently in storage.
+     */
+    getCurrentLoad(): number {
+        let currentLoad = 0;
+        // Iterate over all values (amounts) in the storage map and sum them up.
+        for (const amount of this.storage.values()) {
+            currentLoad += amount;
+        }
+        return currentLoad;
+    }
+
+    /**
+     * Checks if adding a certain amount would exceed the maximum capacity.
+     * @param amountToAdd - The amount intended to be added.
+     * @returns True if adding the amount would exceed capacity, false otherwise.
+     */
+    private wouldExceedCapacity(amountToAdd: number): boolean {
+        return this.getCurrentLoad() + amountToAdd > this._maxCapacity;
+    }
+
+    /**
+     * Adds a specified amount of a chemical to the inventory.
+     * Checks for capacity limits before adding.
+     * @param chemicalId - The ID of the chemical to add (e.g., 'Product B').
+     * @param amount - The positive integer amount to add.
+     * @returns True if the chemical was successfully added, false if it failed (e.g., due to capacity or invalid amount).
+     */
+    addChemical(chemicalId: string, amount: number): boolean {
+        // Input validation: Amount must be positive.
+        if (amount <= 0) {
+            console.warn(`Inventory.addChemical: Cannot add non-positive amount (${amount}) of ${chemicalId}.`);
+            return false;
+        }
+
+        // Capacity check: Ensure adding this amount doesn't exceed the total limit.
+        if (this.wouldExceedCapacity(amount)) {
+            console.warn(`Inventory.addChemical: Cannot add ${amount} of ${chemicalId}. Exceeds capacity (${this.getCurrentLoad()}/${this._maxCapacity}).`);
+            // Optionally, could add only up to capacity, but strict failure is simpler for now.
+            return false;
+        }
+
+        // Get the current amount of this chemical (defaults to 0 if not present).
+        const currentAmount = this.storage.get(chemicalId) || 0;
+        // Update the storage map with the new total amount.
+        this.storage.set(chemicalId, currentAmount + amount);
+        console.log(`Inventory: Added ${amount} ${chemicalId}. New total: ${this.storage.get(chemicalId)}`);
+        // Signal success.
+        return true;
+    }
+
+    /**
+     * Removes a specified amount of a chemical from the inventory.
+     * Checks if enough of the chemical is available before removing.
+     * @param chemicalId - The ID of the chemical to remove (e.g., 'Raw Chemical A').
+     * @param amount - The positive integer amount to remove.
+     * @returns True if the chemical was successfully removed, false if it failed (e.g., not enough available or invalid amount).
+     */
+    removeChemical(chemicalId: string, amount: number): boolean {
+        // Input validation: Amount must be positive.
+        if (amount <= 0) {
+            console.warn(`Inventory.removeChemical: Cannot remove non-positive amount (${amount}) of ${chemicalId}.`);
+            return false;
+        }
+
+        // Availability check: Ensure we have enough to remove.
+        const currentAmount = this.storage.get(chemicalId) || 0;
+        if (currentAmount < amount) {
+            console.warn(`Inventory.removeChemical: Not enough ${chemicalId}. Tried to remove ${amount}, but only have ${currentAmount}.`);
+            return false;
+        }
+
+        // Calculate the new amount.
+        const newAmount = currentAmount - amount;
+        // Update the storage map. If the new amount is 0, remove the entry entirely (optional, keeps map cleaner).
+        if (newAmount === 0) {
+            this.storage.delete(chemicalId);
+        } else {
+            this.storage.set(chemicalId, newAmount);
+        }
+        console.log(`Inventory: Removed ${amount} ${chemicalId}. Remaining: ${newAmount}`);
+        // Signal success.
+        return true;
+    }
+
+    /**
+     * Gets the current stored amount of a specific chemical.
+     * @param chemicalId - The ID of the chemical to query.
+     * @returns The amount currently stored (0 if none).
+     */
+    getAmount(chemicalId: string): number {
+        return this.storage.get(chemicalId) || 0;
+    }
+
+    /**
+     * Checks if there is at least the specified amount of a chemical available.
+     * @param chemicalId - The ID of the chemical to check.
+     * @param amount - The amount required.
+     * @returns True if the stored amount is greater than or equal to the required amount, false otherwise.
+     */
+    hasEnough(chemicalId: string, amount: number): boolean {
+        return this.getAmount(chemicalId) >= amount;
+    }
+
+    /**
+     * Checks if the inventory is completely full (current load equals max capacity).
+     * @returns True if the inventory is full, false otherwise.
+     */
+    isFull(): boolean {
+        return this.getCurrentLoad() >= this._maxCapacity;
+    }
+
+    /**
+     * Gets the maximum storage capacity of this inventory.
+     * @returns The maximum total units allowed.
+     */
+    getCapacity(): number {
+        return this._maxCapacity;
+    }
+
+    /**
+     * Gets the current load (total units stored).
+     * Useful for UI display alongside capacity.
+     * @returns The total units currently stored.
+     */
+    getLoad(): number {
+        return this.getCurrentLoad();
+    }
+
+
+    /**
+     * Provides read-only access to the current chemical storage.
+     * Useful for UI elements that need to display all stored items.
+     * Returns a *copy* to prevent external modification of the internal map.
+     * @returns A new Map containing the current chemical IDs and amounts.
+     */
+    getStoredChemicals(): Map<string, number> {
+        return new Map(this.storage); // Return a copy
+    }
+
+    /**
+     * Increases the maximum storage capacity.
+     * @param additionalCapacity - The positive amount to increase the capacity by.
+     * @returns True if capacity was increased, false if the input was invalid.
+     */
+    increaseCapacity(additionalCapacity: number): boolean {
+        if(additionalCapacity <= 0) {
+             console.warn(`Inventory.increaseCapacity: Cannot increase capacity by non-positive amount (${additionalCapacity}).`);
+             return false;
+        }
+        this._maxCapacity += additionalCapacity;
+        console.log(`Inventory capacity increased by ${additionalCapacity}. New max capacity: ${this._maxCapacity}`);
+        return true;
+    }
+}
+```
+# End of file: src/Inventory.ts
+
+# File: src/MachineInstance.ts
+```typescript
+// src/MachineInstance.ts
+
+import * as PIXI from 'pixi.js';
+import { Inventory } from './Inventory';
+import { RecipeData, getRecipesForMachine } from './data/Recipes';
+import { MachineTypeData, getMachineTypeData } from './data/Machines';
+
+// Define possible states for the machine instance
+type MachineStatus = 'Idle' | 'Processing' | 'Blocked_Output' | 'Blocked_Input' | 'No_Recipe';
+
+/**
+ * Represents a single instance of a processing machine in the factory.
+ * Handles its own state, recipe execution, timer, and visualization.
+ */
+export class MachineInstance { // Renamed class
+    // --- Properties ---
+    public readonly id: string; // Unique identifier for this machine instance
+    public readonly machineType: string; // Type of machine ('Mixer', 'Heater', etc.)
+    private machineTypeData: MachineTypeData; // Data associated with the type
+    private inventory: Inventory; // Reference to the shared game inventory
+    private status: MachineStatus; // Current operational status
+    private currentRecipe: RecipeData | null; // The recipe this machine is configured to run
+    private processingTimerSeconds: number; // Countdown timer for recipe completion
+
+    // Visual representation
+    private spriteContainer: PIXI.Container; // Holds all visual elements
+    private bodyGfx: PIXI.Graphics; // The main graphic for the machine
+    private statusText: PIXI.Text; // Displays current status
+
+    // --- Constants for Visuals ---
+    private readonly GFX_WIDTH = 64;
+    private readonly GFX_HEIGHT = 64;
+    private readonly COLOR_IDLE = 0x0088FF; // Blue
+    private readonly COLOR_PROCESSING = 0xFFDD00; // Yellow
+    private readonly COLOR_BLOCKED = 0xFF0000; // Red
+    private readonly COLOR_NO_RECIPE = 0x888888; // Grey
+
+    /**
+     * Creates a new MachineInstance.
+     * @param id Unique ID for this machine instance.
+     * @param machineType The type identifier (e.g., 'Mixer').
+     * @param inventory A reference to the game's main inventory system.
+     * @param position The initial x, y coordinates for the machine instance's visual sprite.
+     */
+    constructor(id: string, machineType: string, inventory: Inventory, position: { x: number, y: number }) {
+        this.id = id;
+        this.machineType = machineType;
+        this.inventory = inventory;
+        this.processingTimerSeconds = 0;
+
+        // --- Data Loading ---
+        try {
+            this.machineTypeData = getMachineTypeData(machineType);
+        } catch (error) {
+            console.error(`Failed to create machine instance ${id}:`, error);
+            throw new Error(`Invalid machine type "${machineType}" for machine instance ${id}.`);
+        }
+
+        // --- Recipe Setup ---
+        const availableRecipes = getRecipesForMachine(this.machineType);
+        if (availableRecipes.length > 0) {
+            this.currentRecipe = availableRecipes[0];
+            this.status = 'Idle';
+            console.log(`MachineInstance ${this.id} (${this.machineType}) assigned recipe: ${this.currentRecipe.id}`);
+        } else {
+            this.currentRecipe = null;
+            this.status = 'No_Recipe';
+            console.warn(`MachineInstance ${this.id} (${this.machineType}) created, but no recipes found for this type.`);
+        }
+
+        // --- Visual Setup ---
+        this.spriteContainer = new PIXI.Container();
+        this.spriteContainer.position.set(position.x, position.y);
+
+        this.bodyGfx = new PIXI.Graphics();
+        this.spriteContainer.addChild(this.bodyGfx);
+
+        this.statusText = new PIXI.Text({
+            text: this.status,
+            style: new PIXI.TextStyle({
+                fontFamily: 'Arial', fontSize: 12, fill: 0xFFFFFF,
+                stroke: { color: 0x000000, width: 2 }, align: 'center',
+            })
+        });
+        this.statusText.anchor.set(0.5);
+        this.statusText.position.set(this.GFX_WIDTH / 2, this.GFX_HEIGHT + 10);
+        this.spriteContainer.addChild(this.statusText);
+
+        this.updateVisualState(); // Draw initial state
+
+        console.log(`MachineInstance ${id} (${machineType}) created at (${position.x}, ${position.y}). Status: ${this.status}`);
+    }
+
+    /** Updates the visual appearance based on the current status. */
+    private updateVisualState(): void {
+        this.bodyGfx.clear();
+        let color = this.COLOR_NO_RECIPE;
+        switch (this.status) {
+            case 'Idle': color = this.COLOR_IDLE; break;
+            case 'Processing': color = this.COLOR_PROCESSING; break;
+            case 'Blocked_Input': case 'Blocked_Output': color = this.COLOR_BLOCKED; break;
+        }
+        this.bodyGfx.rect(0, 0, this.GFX_WIDTH, this.GFX_HEIGHT);
+        this.bodyGfx.fill(color);
+        this.bodyGfx.stroke({ width: 2, color: 0x000000 });
+        this.statusText.text = this.status;
+        if (this.status === 'Processing') {
+            this.statusText.text = `Proc: ${this.processingTimerSeconds.toFixed(1)}s`;
+        }
+    }
+
+    /** Main update logic for the machine instance, called every frame by GameManager. */
+    public update(deltaMS: number): void {
+        if (this.status === 'No_Recipe') return;
+
+        // State: Idle or Blocked_Input
+        if (this.status === 'Idle' || this.status === 'Blocked_Input') {
+            if (!this.currentRecipe) {
+                 this.status = 'No_Recipe'; this.updateVisualState(); return;
+            }
+            let canConsume = true;
+            for (const chemId in this.currentRecipe.inputs) {
+                if (!this.inventory.hasEnough(chemId, this.currentRecipe.inputs[chemId])) {
+                    canConsume = false; break;
+                }
+            }
+            if (canConsume) {
+                let consumedSuccessfully = true;
+                for (const chemId in this.currentRecipe.inputs) {
+                     if (!this.inventory.removeChemical(chemId, this.currentRecipe.inputs[chemId])) {
+                         consumedSuccessfully = false;
+                         console.error(`MachineInstance ${this.id}: Failed to remove ${chemId}! Inventory inconsistent?`);
+                         break;
+                     }
+                }
+                if (consumedSuccessfully) {
+                    this.status = 'Processing';
+                    this.processingTimerSeconds = this.currentRecipe.processingTimeSeconds;
+                    console.log(`MachineInstance ${this.id}: Started processing recipe ${this.currentRecipe.id}. Duration: ${this.processingTimerSeconds}s`);
+                    this.updateVisualState();
+                } else {
+                    this.status = 'Blocked_Input'; // Or Idle? Let's stick to Blocked for errors.
+                    console.warn(`MachineInstance ${this.id}: Failed to consume inputs for recipe ${this.currentRecipe.id}. Check logs.`);
+                    this.updateVisualState();
+                }
+            } else {
+                 this.status = 'Idle'; // Waiting for input
+                 this.updateVisualState();
+            }
+        }
+        // State: Processing
+        else if (this.status === 'Processing') {
+            this.processingTimerSeconds -= deltaMS / 1000;
+            this.updateVisualState(); // Update timer display
+            if (this.processingTimerSeconds <= 0) {
+                this.finishProcessing();
+            }
+        }
+        // State: Blocked_Output
+        else if (this.status === 'Blocked_Output') {
+            // Re-attempt adding output only when finishProcessing is called again (e.g., potentially by external logic later)
+            // For now, it just sits blocked. Let's re-attempt processing logic which implicitly re-calls finishProcessing if timer is <= 0
+             if (this.processingTimerSeconds <= 0) { // Ensure timer ran out before re-attempting
+                 this.finishProcessing(); // Re-attempt to add outputs
+             }
+        }
+    }
+
+    /** Called when the processing timer reaches zero. Attempts to add output to inventory. */
+    private finishProcessing(): void {
+        if (!this.currentRecipe) {
+            console.error(`MachineInstance ${this.id}: finishProcessing called with no recipe!`);
+            this.status = 'Idle'; this.updateVisualState(); return;
+        }
+        console.log(`MachineInstance ${this.id}: Finished processing recipe ${this.currentRecipe.id}. Attempting output.`);
+        let addedSuccessfully = true;
+        for (const chemId in this.currentRecipe.outputs) {
+            if (!this.inventory.addChemical(chemId, this.currentRecipe.outputs[chemId])) {
+                addedSuccessfully = false; break;
+            }
+        }
+        if (addedSuccessfully) {
+            console.log(`MachineInstance ${this.id}: Output successfully added.`);
+            this.status = 'Idle'; this.processingTimerSeconds = 0;
+        } else {
+            console.warn(`MachineInstance ${this.id}: Output blocked! Inventory likely full.`);
+            this.status = 'Blocked_Output'; this.processingTimerSeconds = 0; // Reset timer even if blocked
+        }
+        this.updateVisualState();
+    }
+
+    /** Returns the PIXI Container for this machine instance's visuals. */
+    public getSprite(): PIXI.Container {
+        return this.spriteContainer;
+    }
+}
+```
+# End of file: src/MachineInstance.ts
+
+# File: src/counter.ts
+```typescript
+export function setupCounter(element: HTMLButtonElement) {
+  let counter = 0
+  const setCounter = (count: number) => {
+    counter = count
+    element.innerHTML = `count is ${counter}`
+  }
+  element.addEventListener('click', () => setCounter(counter + 1))
+  setCounter(0)
+}
+
+```
+# End of file: src/counter.ts
+
+# File: src/UIManager.ts
+```typescript
+// src/UIManager.ts
+
+import * as PIXI from 'pixi.js';
+import { Inventory } from './Inventory';
+
+type ButtonClickHandler = () => void;
+
+export class UIManager {
+    private stage: PIXI.Container;
+    private currencyText: PIXI.Text;
+    private inventoryText: PIXI.Text;
+    private placementText: PIXI.Text;
+    private textStyle: PIXI.TextStyle;
+    private buttonTextStyle: PIXI.TextStyle;
+
+    constructor(
+        stage: PIXI.Container,
+        onBuyChemicalAClick: ButtonClickHandler,
+        onSellProductBClick: ButtonClickHandler,
+        onBuyMixerClick: ButtonClickHandler
+    ) {
+        // ... (Styles and other text elements as before) ...
+        this.stage = stage;
+        this.textStyle = new PIXI.TextStyle({ /* ... */ fontFamily: 'Arial', fontSize: 24, fill: 0xffffff, stroke: { color: 0x000000, width: 4 }, align: 'left' });
+        this.buttonTextStyle = new PIXI.TextStyle({ /* ... */ fontFamily: 'Arial', fontSize: 18, fill: 0x000000, align: 'center' });
+        this.currencyText = new PIXI.Text({ text: 'Currency: $---', style: this.textStyle });
+        this.inventoryText = new PIXI.Text({ text: 'Inventory: -/-', style: this.textStyle });
+        this.placementText = new PIXI.Text({ text: '', style: this.textStyle });
+        this.currencyText.position.set(10, 10);
+        this.inventoryText.position.set(10, 40);
+        this.placementText.position.set(10, 150);
+        this.stage.addChild(this.currencyText, this.inventoryText, this.placementText);
+
+        // --- Button Elements ---
+        const buttonWidth = 180; const buttonHeight = 40; const buttonPadding = 10;
+        const buttonRow1Y = this.inventoryText.y + this.inventoryText.height + buttonPadding * 2;
+        const buttonRow2Y = buttonRow1Y + buttonHeight + buttonPadding;
+        this.createButton('Buy Raw A ($10)', 10, buttonRow1Y, buttonWidth, buttonHeight, onBuyChemicalAClick);
+        this.createButton('Sell Product B ($25)', 10 + buttonWidth + buttonPadding, buttonRow1Y, buttonWidth, buttonHeight, onSellProductBClick);
+        this.createButton('Buy Mixer ($100)', 10, buttonRow2Y, buttonWidth, buttonHeight, onBuyMixerClick);
+        console.log("UIManager initialized with buttons.");
+    }
+
+    private createButton(text: string, x: number, y: number, width: number, height: number, onClick: ButtonClickHandler): PIXI.Container {
+        const buttonContainer = new PIXI.Container(); /* ... as before ... */
+        buttonContainer.position.set(x, y);
+        const buttonBackground = new PIXI.Graphics() .roundRect(0, 0, width, height, 8).fill(0xCCCCCC).stroke({ width: 2, color: 0x333333 });
+        const buttonText = new PIXI.Text({ text: text, style: this.buttonTextStyle }); buttonText.anchor.set(0.5); buttonText.position.set(width / 2, height / 2);
+        buttonContainer.addChild(buttonBackground, buttonText);
+        buttonContainer.eventMode = 'static'; buttonContainer.cursor = 'pointer';
+
+        // --- MODIFICATION HERE ---
+        // Attach the click handler and stop propagation
+        buttonContainer.on('pointerdown', (event: PIXI.FederatedPointerEvent) => {
+            // Stop this event from bubbling up to the stage listener
+            event.stopPropagation();
+            // Execute the original callback function passed from GameManager
+            onClick();
+        });
+        // --- END MODIFICATION ---
+
+        this.stage.addChild(buttonContainer);
+        return buttonContainer;
+    }
+
+    public updateCurrency(amount: number): void { this.currencyText.text = `Currency: $${amount}`; }
+    public updateInventory(inventory: Inventory): void { const load = inventory.getLoad(); const capacity = inventory.getCapacity(); this.inventoryText.text = `Inventory: ${load} / ${capacity}`; }
+    public updatePlacementText(message: string): void { this.placementText.text = message; }
+}
+```
+# End of file: src/UIManager.ts
+
+# File: src/main.ts
+```typescript
+// src/main.ts
+
+// Import the main stylesheet (Vite handles the CSS injection)
+import './style.css';
+
+// Import our GameManager class
+import { GameManager } from './GameManager';
+
+// --- Application Entry Point ---
+
+// Create an instance of the GameManager
+// The GameManager's constructor will initialize Pixi.js and set up the game.
+const gameManager = new GameManager();
+
+// You could potentially expose the gameManager globally for debugging,
+// but it's generally better practice to avoid global variables.
+// (window as any).gameManager = gameManager; // Uncomment for debugging if needed
+
+console.log("main.ts execution finished. GameManager is now running.");
+```
+# End of file: src/main.ts
+
+# File: src/vite-env.d.ts
+```typescript
+/// <reference types="vite/client" />
+
+```
+# End of file: src/vite-env.d.ts
+
+# File: src/typescript.svg
+```text
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="32" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256"><path fill="#007ACC" d="M0 128v128h256V0H0z"></path><path fill="#FFF" d="m56.612 128.85l-.081 10.483h33.32v94.68h23.568v-94.68h33.321v-10.28c0-5.69-.122-10.444-.284-10.566c-.122-.162-20.4-.244-44.983-.203l-44.74.122l-.121 10.443Zm149.955-10.742c6.501 1.625 11.459 4.51 16.01 9.224c2.357 2.52 5.851 7.111 6.136 8.208c.08.325-11.053 7.802-17.798 11.988c-.244.162-1.22-.894-2.317-2.52c-3.291-4.795-6.745-6.867-12.028-7.233c-7.76-.528-12.759 3.535-12.718 10.321c0 1.992.284 3.17 1.097 4.795c1.707 3.536 4.876 5.649 14.832 9.956c18.326 7.883 26.168 13.084 31.045 20.48c5.445 8.249 6.664 21.415 2.966 31.208c-4.063 10.646-14.14 17.879-28.323 20.276c-4.388.772-14.79.65-19.504-.203c-10.28-1.828-20.033-6.908-26.047-13.572c-2.357-2.6-6.949-9.387-6.664-9.874c.122-.163 1.178-.813 2.356-1.504c1.138-.65 5.446-3.129 9.509-5.485l7.355-4.267l1.544 2.276c2.154 3.29 6.867 7.801 9.712 9.305c8.167 4.307 19.383 3.698 24.909-1.26c2.357-2.153 3.332-4.388 3.332-7.68c0-2.966-.366-4.266-1.91-6.501c-1.99-2.845-6.054-5.242-17.595-10.24c-13.206-5.69-18.895-9.224-24.096-14.832c-3.007-3.25-5.852-8.452-7.03-12.8c-.975-3.617-1.22-12.678-.447-16.335c2.723-12.76 12.353-21.659 26.25-24.3c4.51-.853 14.994-.528 19.424.569Z"></path></svg>
+```
+# End of file: src/typescript.svg
+
+# File: src/style.css
+```css
+/* src/style.css */
+
+/* Reset default browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Make the body take up the full viewport */
+html, body {
+  height: 100%;
+  overflow: hidden; /* Prevent scrollbars */
+  background-color: #222; /* Optional: Background for area outside canvas */
+}
+
+/* Ensure the app container (and thus the canvas) can fill the space */
+#app {
+  width: 100%;
+  height: 100%;
+  display: block; /* Prevent potential inline spacing issues */
+}
+
+/* Style the canvas directly if needed (Pixi usually handles this well) */
+canvas {
+  display: block; /* Ensure it behaves as a block element */
+}
+```
+# End of file: src/style.css
+
+# File: src/data/Recipes.ts
+```typescript
+// src/data/Recipes.ts
+
+/**
+ * Defines the input requirements for a recipe.
+ * The key is the chemical ID, and the value is the amount required.
+ */
+export type RecipeInput = Record<string, number>; // e.g., { 'Raw Chemical A': 1 }
+
+/**
+ * Defines the output generated by a recipe.
+ * The key is the chemical ID, and the value is the amount produced.
+ */
+export type RecipeOutput = Record<string, number>; // e.g., { 'Product B': 1 }
+
+/**
+ * Defines the structure for a single processing recipe.
+ */
+export interface RecipeData {
+    /** A unique identifier for the recipe (e.g., 'Mix A to B'). */
+    id: string;
+    /** The type of machine required to perform this recipe (e.g., 'Mixer'). */
+    machineType: string;
+    /** The input chemicals and amounts required. */
+    inputs: RecipeInput;
+    /** The output chemicals and amounts produced. */
+    outputs: RecipeOutput;
+    /** The time required to complete one cycle of this recipe, in seconds. */
+    processingTimeSeconds: number;
+}
+
+/**
+ * A list containing all available recipes in the game.
+ * We use a list here because the order might matter later, or we might filter it.
+ * A map could also be used if lookup by ID is the primary need.
+ */
+export const RECIPE_DATA: RecipeData[] = [
+    // --- Mixer Recipes ---
+    {
+        id: 'Mix A to B',                // Unique recipe name
+        machineType: 'Mixer',            // Requires a Mixer machine
+        inputs: { 'Raw Chemical A': 1 }, // Needs 1 unit of Raw Chemical A
+        outputs: { 'Product B': 1 },     // Produces 1 unit of Product B
+        processingTimeSeconds: 5,        // Takes 5 seconds
+    },
+
+    // --- Future Recipes can be added here ---
+    // {
+    //     id: 'Heat X to Y',
+    //     machineType: 'Heater',
+    //     inputs: { 'Acid X': 2 },
+    //     outputs: { 'Compound Y': 1 },
+    //     processingTimeSeconds: 8,
+    // },
+];
+
+/**
+ * Helper function to find recipes compatible with a specific machine type.
+ * @param machineType The type of machine (e.g., 'Mixer').
+ * @returns An array of RecipeData objects that can be performed by that machine type.
+ */
+export function getRecipesForMachine(machineType: string): RecipeData[] {
+    return RECIPE_DATA.filter(recipe => recipe.machineType === machineType);
+}
+```
+# End of file: src/data/Recipes.ts
+
+# File: src/data/Chemicals.ts
+```typescript
+// src/data/Chemicals.ts
+
+/**
+ * Defines the properties for a single type of chemical.
+ */
+export interface ChemicalData {
+    /** The unique identifier and display name for the chemical. */
+    id: string;
+    /** The cost to purchase one unit of this chemical (0 if not purchasable). */
+    buyCost: number;
+    /** The price obtained when selling one unit of this chemical (0 if not sellable). */
+    sellPrice: number;
+    /** Optional: Path to an icon asset for this chemical (we'll add actual paths later). */
+    icon?: string; // e.g., 'assets/icons/raw_a.png'
+}
+
+/**
+ * A map holding the data for all available chemicals in the game, keyed by their ID.
+ * This makes it easy to look up chemical data using its name (e.g., CHEMICAL_DATA['Raw Chemical A']).
+ */
+export const CHEMICAL_DATA: Record<string, ChemicalData> = {
+    // --- Raw Chemicals ---
+    'Raw Chemical A': {
+        id: 'Raw Chemical A', // Use the key as the ID for simplicity
+        buyCost: 10,         // Cost $10 to buy one unit
+        sellPrice: 0,          // Cannot be sold directly
+        // icon: 'assets/icons/raw_a.png' // Add actual asset path later
+    },
+
+    // --- Products ---
+    'Product B': {
+        id: 'Product B',
+        buyCost: 0,            // Cannot be bought directly
+        sellPrice: 25,         // Sells for $25 per unit
+        // icon: 'assets/icons/product_b.png' // Add actual asset path later
+    }
+
+    // --- Future Chemicals can be added here ---
+    // 'Acid X': { id: 'Acid X', buyCost: 5, sellPrice: 0 },
+    // 'Compound Y': { id: 'Compound Y', buyCost: 0, sellPrice: 50 },
+};
+
+/**
+ * Helper function to get chemical data by ID.
+ * Provides type safety and throws an error if the chemical doesn't exist.
+ * @param id The ID of the chemical to retrieve.
+ * @returns The ChemicalData object.
+ * @throws Error if the chemical ID is not found in CHEMICAL_DATA.
+ */
+export function getChemicalData(id: string): ChemicalData {
+    const data = CHEMICAL_DATA[id];
+    if (!data) {
+        throw new Error(`Chemical data not found for ID: ${id}`);
+    }
+    return data;
+}
+```
+# End of file: src/data/Chemicals.ts
+
+# File: src/data/Machines.ts
+```typescript
+// src/data/Machines.ts
+
+/**
+ * Defines the properties for a type of placeable machine.
+ */
+export interface MachineTypeData {
+    /** The unique identifier and display name for the machine type. */
+    id: string;
+    /** The cost to purchase one machine of this type. */
+    cost: number;
+    /** The path to the sprite/texture asset for this machine type. */
+    spritePath: string; // e.g., 'assets/machines/mixer.png'
+    // --- Optional future properties ---
+    // footprintWidth?: number; // How many grid cells wide
+    // footprintHeight?: number; // How many grid cells tall
+    // powerConsumption?: number; // Power needed per second
+}
+
+/**
+ * A map holding the data for all available machine types, keyed by their ID.
+ */
+export const MACHINE_TYPE_DATA: Record<string, MachineTypeData> = {
+    'Mixer': {
+        id: 'Mixer',
+        cost: 100,                          // Costs $100 to buy
+        spritePath: 'assets/sprites/mixer_placeholder.png', // Placeholder path - needs actual asset later!
+    },
+
+    // --- Future Machine Types can be added here ---
+    // 'Heater': {
+    //     id: 'Heater',
+    //     cost: 300,
+    //     spritePath: 'assets/sprites/heater_placeholder.png',
+    // },
+};
+
+/**
+ * Helper function to get machine type data by ID.
+ * @param id The ID of the machine type (e.g., 'Mixer').
+ * @returns The MachineTypeData object.
+ * @throws Error if the machine type ID is not found.
+ */
+export function getMachineTypeData(id: string): MachineTypeData {
+    const data = MACHINE_TYPE_DATA[id];
+    if (!data) {
+        throw new Error(`Machine type data not found for ID: ${id}`);
+    }
+    return data;
+}
+```
+# End of file: src/data/Machines.ts
+
